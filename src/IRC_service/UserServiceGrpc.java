@@ -19,14 +19,14 @@ public class UserServiceGrpc {
   public static final io.grpc.MethodDescriptor<IRC_service.Ircservice.gString,
       IRC_service.Ircservice.gInt> METHOD_JOIN_CHANNEL =
       io.grpc.MethodDescriptor.create(
-          io.grpc.MethodDescriptor.MethodType.CLIENT_STREAMING,
+          io.grpc.MethodDescriptor.MethodType.UNARY,
           "IRC_service.UserService", "joinChannel",
           io.grpc.protobuf.ProtoUtils.marshaller(IRC_service.Ircservice.gString.parser()),
           io.grpc.protobuf.ProtoUtils.marshaller(IRC_service.Ircservice.gInt.parser()));
   public static final io.grpc.MethodDescriptor<IRC_service.Ircservice.gVoid,
       IRC_service.Ircservice.gRepeatMsg> METHOD_MSG_RECV =
       io.grpc.MethodDescriptor.create(
-          io.grpc.MethodDescriptor.MethodType.UNARY,
+          io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING,
           "IRC_service.UserService", "msgRecv",
           io.grpc.protobuf.ProtoUtils.marshaller(IRC_service.Ircservice.gVoid.parser()),
           io.grpc.protobuf.ProtoUtils.marshaller(IRC_service.Ircservice.gRepeatMsg.parser()));
@@ -61,7 +61,7 @@ public class UserServiceGrpc {
 
   public static interface UserService {
 
-    public io.grpc.stub.StreamObserver<IRC_service.Ircservice.gString> joinChannel(
+    public void joinChannel(IRC_service.Ircservice.gString request,
         io.grpc.stub.StreamObserver<IRC_service.Ircservice.gInt> responseObserver);
 
     public void msgRecv(IRC_service.Ircservice.gVoid request,
@@ -76,7 +76,10 @@ public class UserServiceGrpc {
 
   public static interface UserServiceBlockingClient {
 
-    public IRC_service.Ircservice.gRepeatMsg msgRecv(IRC_service.Ircservice.gVoid request);
+    public IRC_service.Ircservice.gInt joinChannel(IRC_service.Ircservice.gString request);
+
+    public java.util.Iterator<IRC_service.Ircservice.gRepeatMsg> msgRecv(
+        IRC_service.Ircservice.gVoid request);
 
     public IRC_service.Ircservice.gVoid broadcastSend(IRC_service.Ircservice.gBroadcastSendParam request);
 
@@ -85,8 +88,8 @@ public class UserServiceGrpc {
 
   public static interface UserServiceFutureClient {
 
-    public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gRepeatMsg> msgRecv(
-        IRC_service.Ircservice.gVoid request);
+    public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gInt> joinChannel(
+        IRC_service.Ircservice.gString request);
 
     public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gVoid> broadcastSend(
         IRC_service.Ircservice.gBroadcastSendParam request);
@@ -113,16 +116,16 @@ public class UserServiceGrpc {
     }
 
     @java.lang.Override
-    public io.grpc.stub.StreamObserver<IRC_service.Ircservice.gString> joinChannel(
+    public void joinChannel(IRC_service.Ircservice.gString request,
         io.grpc.stub.StreamObserver<IRC_service.Ircservice.gInt> responseObserver) {
-      return asyncClientStreamingCall(
-          channel.newCall(METHOD_JOIN_CHANNEL, callOptions), responseObserver);
+      asyncUnaryCall(
+          channel.newCall(METHOD_JOIN_CHANNEL, callOptions), request, responseObserver);
     }
 
     @java.lang.Override
     public void msgRecv(IRC_service.Ircservice.gVoid request,
         io.grpc.stub.StreamObserver<IRC_service.Ircservice.gRepeatMsg> responseObserver) {
-      asyncUnaryCall(
+      asyncServerStreamingCall(
           channel.newCall(METHOD_MSG_RECV, callOptions), request, responseObserver);
     }
 
@@ -159,8 +162,15 @@ public class UserServiceGrpc {
     }
 
     @java.lang.Override
-    public IRC_service.Ircservice.gRepeatMsg msgRecv(IRC_service.Ircservice.gVoid request) {
+    public IRC_service.Ircservice.gInt joinChannel(IRC_service.Ircservice.gString request) {
       return blockingUnaryCall(
+          channel.newCall(METHOD_JOIN_CHANNEL, callOptions), request);
+    }
+
+    @java.lang.Override
+    public java.util.Iterator<IRC_service.Ircservice.gRepeatMsg> msgRecv(
+        IRC_service.Ircservice.gVoid request) {
+      return blockingServerStreamingCall(
           channel.newCall(METHOD_MSG_RECV, callOptions), request);
     }
 
@@ -195,10 +205,10 @@ public class UserServiceGrpc {
     }
 
     @java.lang.Override
-    public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gRepeatMsg> msgRecv(
-        IRC_service.Ircservice.gVoid request) {
+    public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gInt> joinChannel(
+        IRC_service.Ircservice.gString request) {
       return futureUnaryCall(
-          channel.newCall(METHOD_MSG_RECV, callOptions), request);
+          channel.newCall(METHOD_JOIN_CHANNEL, callOptions), request);
     }
 
     @java.lang.Override
@@ -221,20 +231,21 @@ public class UserServiceGrpc {
     return io.grpc.ServerServiceDefinition.builder("IRC_service.UserService")
       .addMethod(io.grpc.ServerMethodDefinition.create(
           METHOD_JOIN_CHANNEL,
-          asyncClientStreamingCall(
-            new io.grpc.stub.ServerCalls.ClientStreamingMethod<
+          asyncUnaryCall(
+            new io.grpc.stub.ServerCalls.UnaryMethod<
                 IRC_service.Ircservice.gString,
                 IRC_service.Ircservice.gInt>() {
               @java.lang.Override
-              public io.grpc.stub.StreamObserver<IRC_service.Ircservice.gString> invoke(
+              public void invoke(
+                  IRC_service.Ircservice.gString request,
                   io.grpc.stub.StreamObserver<IRC_service.Ircservice.gInt> responseObserver) {
-                return serviceImpl.joinChannel(responseObserver);
+                serviceImpl.joinChannel(request, responseObserver);
               }
             })))
       .addMethod(io.grpc.ServerMethodDefinition.create(
           METHOD_MSG_RECV,
-          asyncUnaryCall(
-            new io.grpc.stub.ServerCalls.UnaryMethod<
+          asyncServerStreamingCall(
+            new io.grpc.stub.ServerCalls.ServerStreamingMethod<
                 IRC_service.Ircservice.gVoid,
                 IRC_service.Ircservice.gRepeatMsg>() {
               @java.lang.Override
