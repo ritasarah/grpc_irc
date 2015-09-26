@@ -194,6 +194,7 @@ public class IRCClient {
         } catch (RuntimeException e) {
           logger.log(Level.WARNING, "RPC failed", e);
         }
+        //harusnya return list message tapi bingung ah pundung 
 //        return listmsg ;
         return null;
     }

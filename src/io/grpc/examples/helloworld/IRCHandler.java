@@ -24,7 +24,7 @@ public class IRCHandler implements UserServiceGrpc.UserService {
 
         long tsTime = getSecondNow();        
         Ircservice.MessageFormat msg_temp = Ircservice.MessageFormat.newBuilder().setMsg(msg).setFrom(nickname).setToChannel(1, chaneList.get(1)).setMsgTime(tsTime).build();
-
+//set to channel baru masukin 1 channel abis gatau caranya iterasi set trus ntar baru di build 
         return msg_temp;
     }
      
@@ -46,6 +46,7 @@ public class IRCHandler implements UserServiceGrpc.UserService {
                     res_msg.add(m);
             }
         }
+        //gabisa return res msg ih kzl 
     //    return res_msg;            
     }
 
