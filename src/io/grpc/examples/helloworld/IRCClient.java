@@ -15,15 +15,15 @@ import java.util.logging.Logger;
 /**
  * A simple client that requests a greeting from the {@link HelloWorldServer}.
  */
-public class HelloWorldClient {
-  private static final Logger logger = Logger.getLogger(HelloWorldClient.class.getName());
+public class IRCClient {
+  private static final Logger logger = Logger.getLogger(IRCClient.class.getName());
 
   private final ChannelImpl channel;
   private final UserServiceGrpc.UserServiceBlockingStub blockingStub;
 //  private final GreeterGrpc.GreeterBlockingStub blockingStub;
 
   /** Construct client connecting to HelloWorld server at {@code host:port}. */
-  public HelloWorldClient(String host, int port) {
+  public IRCClient(String host, int port) {
     channel =
         NettyChannelBuilder.forAddress(host, port).negotiationType(NegotiationType.PLAINTEXT)
             .build();
@@ -52,7 +52,7 @@ public class HelloWorldClient {
    * greeting.
    */
   public static void main(String[] args) throws Exception {
-    HelloWorldClient client = new HelloWorldClient("localhost", 50051);
+    IRCClient client = new IRCClient("localhost", 50051);
     try {
       /* Access a service running on the local machine on port 50051 */
       String user = "test";
