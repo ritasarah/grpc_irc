@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package IRC_service;
+	
+service UserService {
+
+	rpc joinChannel(gString) returns (gInt);
+
+	rpc msgRecv(gVoid) returns (gRepeatMsg);
+
+	rpc broadcastSend(gBroadcastSendParam) returns (gVoid);
+
+	rpc msgChannelSend (gChannelSendParam) returns (gVoid);
+}
+
+
+message gRepeatMsg {
+	repeated MessageFormat msgs = 1;
+}
+
+message gBroadcastSendParam {
+	string msg = 1;
+	string uname = 2;
+	repeated string channelList = 3 ;
+}
+
+message gChannelSendParam {
+	string msg = 1;
+	string channel = 2;
+	string uname = 3 ;
+}
+
+message gInt {
+	int32 value = 1;
+}
+
+message gString {
+	string value = 1;
+}
+
+message gVoid {
+
+}
+
+message MessageFormat {
+	string from = 1;
+	repeated string toChannel = 2;
+	string msg = 3;
+	int64 msgTime = 4 ;
+}

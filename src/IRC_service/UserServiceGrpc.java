@@ -26,7 +26,7 @@ public class UserServiceGrpc {
   public static final io.grpc.MethodDescriptor<IRC_service.Ircservice.gVoid,
       IRC_service.Ircservice.gRepeatMsg> METHOD_MSG_RECV =
       io.grpc.MethodDescriptor.create(
-          io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING,
+          io.grpc.MethodDescriptor.MethodType.UNARY,
           "IRC_service.UserService", "msgRecv",
           io.grpc.protobuf.ProtoUtils.marshaller(IRC_service.Ircservice.gVoid.parser()),
           io.grpc.protobuf.ProtoUtils.marshaller(IRC_service.Ircservice.gRepeatMsg.parser()));
@@ -78,8 +78,7 @@ public class UserServiceGrpc {
 
     public IRC_service.Ircservice.gInt joinChannel(IRC_service.Ircservice.gString request);
 
-    public java.util.Iterator<IRC_service.Ircservice.gRepeatMsg> msgRecv(
-        IRC_service.Ircservice.gVoid request);
+    public IRC_service.Ircservice.gRepeatMsg msgRecv(IRC_service.Ircservice.gVoid request);
 
     public IRC_service.Ircservice.gVoid broadcastSend(IRC_service.Ircservice.gBroadcastSendParam request);
 
@@ -90,6 +89,9 @@ public class UserServiceGrpc {
 
     public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gInt> joinChannel(
         IRC_service.Ircservice.gString request);
+
+    public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gRepeatMsg> msgRecv(
+        IRC_service.Ircservice.gVoid request);
 
     public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gVoid> broadcastSend(
         IRC_service.Ircservice.gBroadcastSendParam request);
@@ -125,7 +127,7 @@ public class UserServiceGrpc {
     @java.lang.Override
     public void msgRecv(IRC_service.Ircservice.gVoid request,
         io.grpc.stub.StreamObserver<IRC_service.Ircservice.gRepeatMsg> responseObserver) {
-      asyncServerStreamingCall(
+      asyncUnaryCall(
           channel.newCall(METHOD_MSG_RECV, callOptions), request, responseObserver);
     }
 
@@ -168,9 +170,8 @@ public class UserServiceGrpc {
     }
 
     @java.lang.Override
-    public java.util.Iterator<IRC_service.Ircservice.gRepeatMsg> msgRecv(
-        IRC_service.Ircservice.gVoid request) {
-      return blockingServerStreamingCall(
+    public IRC_service.Ircservice.gRepeatMsg msgRecv(IRC_service.Ircservice.gVoid request) {
+      return blockingUnaryCall(
           channel.newCall(METHOD_MSG_RECV, callOptions), request);
     }
 
@@ -212,6 +213,13 @@ public class UserServiceGrpc {
     }
 
     @java.lang.Override
+    public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gRepeatMsg> msgRecv(
+        IRC_service.Ircservice.gVoid request) {
+      return futureUnaryCall(
+          channel.newCall(METHOD_MSG_RECV, callOptions), request);
+    }
+
+    @java.lang.Override
     public com.google.common.util.concurrent.ListenableFuture<IRC_service.Ircservice.gVoid> broadcastSend(
         IRC_service.Ircservice.gBroadcastSendParam request) {
       return futureUnaryCall(
@@ -244,8 +252,8 @@ public class UserServiceGrpc {
             })))
       .addMethod(io.grpc.ServerMethodDefinition.create(
           METHOD_MSG_RECV,
-          asyncServerStreamingCall(
-            new io.grpc.stub.ServerCalls.ServerStreamingMethod<
+          asyncUnaryCall(
+            new io.grpc.stub.ServerCalls.UnaryMethod<
                 IRC_service.Ircservice.gVoid,
                 IRC_service.Ircservice.gRepeatMsg>() {
               @java.lang.Override

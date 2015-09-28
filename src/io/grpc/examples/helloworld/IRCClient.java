@@ -31,8 +31,7 @@ public class IRCClient {
 
   private final ChannelImpl channel;
   private final UserServiceGrpc.UserServiceBlockingStub blockingStub;
-  
-  
+    
   static String nickname;
   static List<String> channel_list;
   static long lastFetch;
@@ -69,8 +68,38 @@ public class IRCClient {
   public static void main(String[] args) throws Exception {
   
     IRCClient client = new IRCClient("localhost", 50051);
-   try{      
+//   try{      
       channel_list = new ArrayList<String>();
+      
+      Runnable listen = () -> {
+//        System.err.println("ini thread listener");
+        while (true) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(IRCClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            List<MessageFormat> msg_list = client.msgRecv();
+//            System.err.println("msg list size : "+msg_list.size());
+            if (!msg_list.isEmpty()) {
+//                System.err.println("msg list tidak empty");
+                String res = "";
+                for (MessageFormat m : msg_list) {
+                    if (m.getMsgTime() > lastFetch) {
+                        for (String s1 : m.getToChannelList()) {
+                            if (channel_list.contains(s1)) {
+                                res = "[" + s1 + "] (" + m.getFrom() + ") " + m.getMsg();
+                                System.out.println(res);
+                            }
+                        }
+                    }
+                }
+            }
+            lastFetch = getSecondNow();
+        }
+    };
+    new Thread(listen).start();
+      
                         
 //    Runnable main_thread = new Runnable() {
 //        @Override
@@ -99,10 +128,8 @@ public class IRCClient {
                        System.out.println("Join pada channel " + channel + " berhasil!");
                     }catch(Exception e) {
                         System.err.println ("Join pada channel gagal");
-                    }
-                    
+                    }                    
                 }
-
                 else if (mode.equals("/LEAVE")) { // Leave channel X
                     channel = input.next();
                     channel_list.remove(channel);
@@ -126,44 +153,17 @@ public class IRCClient {
                     }
                 }
             } while (true);
+            
+            
 //        }
 //    };
 //    new Thread(main_thread).start();
-
-//    Runnable listen = new Runnable() {
-//        @Override
-//        public void run() {
-//            while(true){
-//                try {
-//                    Thread.sleep(2000);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(IRCClient.class.getName()).log(Level.SEVERE, null, ex);
-//                }
 //
-//                List<MessageFormat> msg_list = client.msgRecv();
-//                    if (!msg_list.isEmpty()) {
-//                        String res = "";
-//                        for (MessageFormat m : msg_list) {
-//
-//                            if (m.getMsgTime() > lastFetch)
-//                                for (String s : m.getToChannelList()) {
-//                                    if (channel_list.contains(s)) {
-//                                        res = "[" + s + "] (" + m.getFrom()+ ") " + m.getMsg();
-//                                        System.out.println(res);
-//                                    }
-//                                }
-//                        }
-//                    }
-//                    lastFetch = getSecondNow();
-//                
-//            }
-//        }
-//    };
-//    new Thread(listen).start();
 
-    } finally {
-      client.shutdown();
-    }
+
+//    } finally {
+//      client.shutdown();
+//    }
   }
   
       private static long getSecondNow(){
@@ -185,24 +185,33 @@ public class IRCClient {
     }
 
     private List<MessageFormat> msgRecv() {
-        gVoid a = gVoid.newBuilder().build();
+        List<MessageFormat> res = new ArrayList<MessageFormat>();
+
         try {
-            Iterator<gRepeatMsg> listmsg = blockingStub.msgRecv(a);
-          
+            gRepeatMsg listmsg = blockingStub.msgRecv(gVoid.getDefaultInstance());
+//            System.out.println(listmsg.toString());
+            if(listmsg.getMsgsCount()!= 0){
+                for (int i=0 ; i<listmsg.getMsgsCount();i++)
+                    res.add(listmsg.getMsgs(i));
+            }else{
+                MessageFormat blank = MessageFormat.newBuilder().setMsg("").setFrom("").build();
+                res.add(blank);
+            }
+            
         } catch (RuntimeException e) {
-          logger.log(Level.WARNING, "RPC failed", e);
+//          logger.log(Level.WARNING, "RPC failed", e);
         }
         //harusnya return list message tapi bingung ah pundung 
-//        return listmsg ;
-        return null;
+      return res;
+
     }
 
     private void joinChannel(String channel) {
         try {
           gString request = gString.newBuilder().setValue(channel).build();
-          System.err.println("Request to join " + request.toString()); 
+//          System.err.println("Request to join " + request.toString()); 
           gInt status = blockingStub.joinChannel(request);
-          System.err.println("Status " +status.toString());
+//          System.err.println("Status " +status.toString());
 
         } catch (RuntimeException e) {
           logger.log(Level.WARNING, "RPC failed", e);
@@ -221,7 +230,7 @@ public class IRCClient {
 
     private void broadcastSend(String msg, String nickname, List<String> channel_list) {
         try {
-          gBroadcastSendParam request = gBroadcastSendParam.newBuilder().setMsg(msg).setUname(nickname).setChannelList(0,channel_list.get(0)).build();
+          gBroadcastSendParam request = gBroadcastSendParam.newBuilder().setMsg(msg).setUname(nickname).addAllChannelList(channel_list).build();
           blockingStub.broadcastSend(request);
 
         } catch (RuntimeException e) {

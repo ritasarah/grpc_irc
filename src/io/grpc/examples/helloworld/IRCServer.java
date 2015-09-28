@@ -9,6 +9,7 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import java.util.logging.Logger;
 
@@ -20,7 +21,7 @@ public class IRCServer {
 
   /* The port on which the server should run */
   private int port = 50051;
-  private ServerImpl server;
+  private static ServerImpl server;
   
   public static List<MessageFormat> msgList;
   public static List<String> channel_list;
@@ -54,10 +55,24 @@ public class IRCServer {
    * Main launches the server from the command line.
    */
   public static void main(String[] args) throws Exception {
-    final IRCServer server = new IRCServer();
+    IRCServer server = new IRCServer();
     server.start();
     
-  }
+//        Runnable simple2 = new Runnable() {
+//	public void run() {
+//            while(true){
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(IRCServer.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                System.out.println("[server] Messages : "+msgList.toString());
+//            }
+//	}
+//      };
+//
+//      new Thread(simple2).start();
 
+  }
     
 }
