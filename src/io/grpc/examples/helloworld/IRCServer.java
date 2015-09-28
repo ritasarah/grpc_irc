@@ -1,4 +1,3 @@
-
 package io.grpc.examples.helloworld;
 
 import IRC_service.Ircservice;
@@ -28,7 +27,7 @@ public class IRCServer {
 
   private void start() throws Exception {
     server = NettyServerBuilder.forPort(port)
-        .addService(UserServiceGrpc.bindService((UserServiceGrpc.UserService) new IRCHandler()))
+        .addService(UserServiceGrpc.bindService(new IRCHandler()))
         .build().start();
     logger.info("Server started, listening on " + port);
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -47,13 +46,17 @@ public class IRCServer {
       server.shutdown();
     }
   }
-
+    public IRCServer() {
+        channel_list = new ArrayList<String>();
+        msgList = new ArrayList<MessageFormat>();
+    }
   /**
    * Main launches the server from the command line.
    */
   public static void main(String[] args) throws Exception {
     final IRCServer server = new IRCServer();
     server.start();
+    
   }
 
     

@@ -4,6 +4,7 @@ import IRC_service.Ircservice;
 import IRC_service.Ircservice.MessageFormat;
 import IRC_service.Ircservice.gBroadcastSendParam;
 import IRC_service.Ircservice.gChannelSendParam;
+import IRC_service.Ircservice.gInt;
 import IRC_service.Ircservice.gRepeatMsg;
 import IRC_service.Ircservice.gString;
 import IRC_service.Ircservice.gVoid;
@@ -30,6 +31,7 @@ public class IRCClient {
 
   private final ChannelImpl channel;
   private final UserServiceGrpc.UserServiceBlockingStub blockingStub;
+  
   
   static String nickname;
   static List<String> channel_list;
@@ -67,19 +69,12 @@ public class IRCClient {
   public static void main(String[] args) throws Exception {
   
     IRCClient client = new IRCClient("localhost", 50051);
-   try{
-      /* Access a service running on the local machine on port 50051 */
-      String user = "test";
-      if (args.length > 0) {
-        user = args[0]; /* Use the arg as the name to greet if provided */
-      }
-      client.greet(user);
-      
+   try{      
       channel_list = new ArrayList<String>();
                         
-    Runnable main_thread = new Runnable() {
-        @Override
-        public void run() {
+//    Runnable main_thread = new Runnable() {
+//        @Override
+//        public void run() {
             Scanner in = new Scanner(System.in);
             String s;
             String mode = "", channel = "", msg = "";
@@ -97,10 +92,15 @@ public class IRCClient {
 
                 else if (mode.equals("/JOIN")) { // Join channel X
                     channel = input.next();
+                    try{
                         client.joinChannel(channel);
                         if(!(channel_list.contains(channel))){
-                            channel_list.add(channel);}
-                        System.out.println("Join pada channel " + channel + " berhasil!");
+                        channel_list.add(channel);}
+                       System.out.println("Join pada channel " + channel + " berhasil!");
+                    }catch(Exception e) {
+                        System.err.println ("Join pada channel gagal");
+                    }
+                    
                 }
 
                 else if (mode.equals("/LEAVE")) { // Leave channel X
@@ -126,43 +126,41 @@ public class IRCClient {
                     }
                 }
             } while (true);
-        }
-    };
-    new Thread(main_thread).start();
+//        }
+//    };
+//    new Thread(main_thread).start();
 
-    Runnable listen = new Runnable() {
-        @Override
-        public void run() {
-            while(true){
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(IRCClient.class.getName()).log(Level.SEVERE, null, ex);
-                }
+//    Runnable listen = new Runnable() {
+//        @Override
+//        public void run() {
+//            while(true){
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(IRCClient.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//
+//                List<MessageFormat> msg_list = client.msgRecv();
+//                    if (!msg_list.isEmpty()) {
+//                        String res = "";
+//                        for (MessageFormat m : msg_list) {
+//
+//                            if (m.getMsgTime() > lastFetch)
+//                                for (String s : m.getToChannelList()) {
+//                                    if (channel_list.contains(s)) {
+//                                        res = "[" + s + "] (" + m.getFrom()+ ") " + m.getMsg();
+//                                        System.out.println(res);
+//                                    }
+//                                }
+//                        }
+//                    }
+//                    lastFetch = getSecondNow();
+//                
+//            }
+//        }
+//    };
+//    new Thread(listen).start();
 
-                List<MessageFormat> msg_list = client.msgRecv();
-                    if (!msg_list.isEmpty()) {
-                        String res = "";
-                        for (MessageFormat m : msg_list) {
-
-                            if (m.getMsgTime() > lastFetch)
-                                for (String s : m.getToChannelList()) {
-                                    if (channel_list.contains(s)) {
-                                        res = "[" + s + "] (" + m.getFrom()+ ") " + m.getMsg();
-                                        System.out.println(res);
-                                    }
-                                }
-                        }
-                    }
-                    lastFetch = getSecondNow();
-                
-            }
-        }
-    };
-    new Thread(listen).start();
-
-      
-      
     } finally {
       client.shutdown();
     }
@@ -202,7 +200,9 @@ public class IRCClient {
     private void joinChannel(String channel) {
         try {
           gString request = gString.newBuilder().setValue(channel).build();
-          blockingStub.joinChannel(request);
+          System.err.println("Request to join " + request.toString()); 
+          gInt status = blockingStub.joinChannel(request);
+          System.err.println("Status " +status.toString());
 
         } catch (RuntimeException e) {
           logger.log(Level.WARNING, "RPC failed", e);
@@ -221,7 +221,7 @@ public class IRCClient {
 
     private void broadcastSend(String msg, String nickname, List<String> channel_list) {
         try {
-          gBroadcastSendParam request = gBroadcastSendParam.newBuilder().setMsg(msg).setUname(nickname).setChannelList(1,channel_list.get(1)).build();
+          gBroadcastSendParam request = gBroadcastSendParam.newBuilder().setMsg(msg).setUname(nickname).setChannelList(0,channel_list.get(0)).build();
           blockingStub.broadcastSend(request);
 
         } catch (RuntimeException e) {

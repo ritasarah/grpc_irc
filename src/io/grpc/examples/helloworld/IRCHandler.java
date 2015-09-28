@@ -2,6 +2,8 @@ package io.grpc.examples.helloworld;
 
 import IRC_service.Ircservice;
 import IRC_service.Ircservice.gInt;
+import IRC_service.Ircservice.gRepeatMsg;
+import IRC_service.Ircservice.gVoid;
 import IRC_service.UserServiceGrpc;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
@@ -40,12 +42,17 @@ public class IRCHandler implements UserServiceGrpc.UserService {
     public void msgRecv(Ircservice.gVoid request, StreamObserver<Ircservice.gRepeatMsg> responseObserver) {
         List<Ircservice.MessageFormat> old_msg = IRCServer.msgList;
         List<Ircservice.MessageFormat> res_msg = new ArrayList<Ircservice.MessageFormat>();
-
+        
         if (!old_msg.isEmpty()) {
             for (Ircservice.MessageFormat m : old_msg) {
                     res_msg.add(m);
+                    responseObserver.onValue(gRepeatMsg.newBuilder().setMsgs(old_msg.indexOf(m), m).build());
             }
         }
+        responseObserver.onCompleted();
+        
+        System.err.println("Finished receiving message");
+        
         //gabisa return res msg ih kzl 
     //    return res_msg;            
     }
@@ -55,6 +62,9 @@ public class IRCHandler implements UserServiceGrpc.UserService {
 
         Ircservice.MessageFormat msg_temp = makeMessage(request.getMsg(), request.getChannelListList(), request.getUname());
         IRCServer.msgList.add(msg_temp);
+        
+        responseObserver.onValue(gVoid.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -63,15 +73,22 @@ public class IRCHandler implements UserServiceGrpc.UserService {
         channeList.add(request.getChannel());
         Ircservice.MessageFormat msg_temp = makeMessage(request.getMsg(), request.getChannel(),request.getUname());
         IRCServer.msgList.add(msg_temp);
+        
+        responseObserver.onValue(gVoid.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 
     @Override
     public void joinChannel(Ircservice.gString request, StreamObserver<gInt> responseObserver) {
-            gInt reply = null;
-            responseObserver.onValue(reply);
-            responseObserver.onCompleted();
-            
-            IRCServer.channel_list.add(request.getValue());
-            
+        System.err.println("Handler : Joining");
+        gInt reply = gInt.newBuilder().setValue(1).build();
+        System.err.println(request.getValue());
+        IRCServer.channel_list.add(request.getValue());
+
+        responseObserver.onValue(reply);
+        responseObserver.onCompleted();
+
+        System.err.println("Handler : join channel "+request.getValue().toString());
+
     }
 }
